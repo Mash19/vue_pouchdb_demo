@@ -39,7 +39,7 @@
 
 <script>
 export default {
-  name: "HelloWorld",
+  name: 'HelloWorld',
   props: {
     title: String,
     vmaLinks: Array,
