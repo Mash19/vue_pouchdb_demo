@@ -10,10 +10,10 @@
 
 <style lang="scss">
 // First, set the value for variable
-$mdc-typography-font-family: "Roboto Mono", monospace;
+$mdc-typography-font-family: 'Roboto Mono', monospace;
 
 // Then, import required files
-@import "@material/typography/mixins";
+@import '@material/typography/mixins';
 
 html {
   width: 100%;

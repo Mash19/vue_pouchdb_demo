@@ -53,10 +53,10 @@ export default {
 $mdc-layout-grid-max-width: 800px;
 
 // Then, import required files
-@import "@material/layout-grid/mdc-layout-grid";
-@import "@material/rtl/mixins";
-@import "@material/theme/color-palette";
-@import "@material/theme/mixins";
+@import '@material/layout-grid/mdc-layout-grid';
+@import '@material/rtl/mixins';
+@import '@material/theme/color-palette';
+@import '@material/theme/mixins';
 
 .hello {
   &__hero {
