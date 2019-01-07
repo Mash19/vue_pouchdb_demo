@@ -2,6 +2,7 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Home</router-link> |
+      <router-link to="/demo">demo</router-link> |
       <router-link to="/about">About</router-link>
     </div>
     <router-view/>
@@ -14,6 +15,7 @@ $mdc-typography-font-family: 'Roboto Mono', monospace;
 
 // Then, import required files
 @import '@material/typography/mixins';
+@import 'vue-mdc-adapter/dist/styles';
 
 html {
   width: 100%;
@@ -26,5 +28,8 @@ body {
   width: 100%;
   min-height: 100%;
   margin: 0;
+}
+.nav a {
+  text-transform: capitalize;
 }
 </style>
