@@ -26,10 +26,16 @@
     <fieldset>
       <legend>Inputs</legend>
       <div class="fields">
-        <mdc-textfield label="ID" v-model="input._id" type="text" readonly></mdc-textfield>
+        <mdc-textfield label="ID (read only)" v-model="input._id" type="text" readonly></mdc-textfield>
         <mdc-textfield label="First Name" v-model="input.firstname" type="text"></mdc-textfield>
         <mdc-textfield label="Last Name" v-model="input.lastname" type="text"></mdc-textfield>
-        <mdc-textfield label="Date of birth" v-model="input.dob" @change="getAge" type="date"></mdc-textfield>
+        <mdc-textfield
+          label="Date of birth"
+          v-model="input.dob"
+          @change="getAge"
+          type="date"
+          pattern="(\d\d?/){2}\d{4}"
+        ></mdc-textfield>
         <mdc-textfield label="Age (read only)" v-model="input.age" type="text" readonly></mdc-textfield>
         <div class="buttons">
           <mdc-button v-if="savebtn" class="primary" @click="save">Save</mdc-button>
@@ -59,6 +65,21 @@ function ageUnits(strings, yrs, mnth) {
   }
   return ageString;
 }
+function formatDate(d) {
+  let bdate = d.toLocaleDateString('en', 'short');
+  bdate = bdate.replace(
+    /(?<month>\d{1,2})\/(?<day>\d{1,2})\/(?<year>\d{4})/,
+    '$<year>-$<month>-$<day>'
+  );
+  return bdate.replace(/\b(\d)\b/g, '0$1');
+}
+function dateFromString(str) {
+  return str.split('-').map((x, i) => {
+    if (i === 0) return x;
+    return i === 1 ? Number.parseInt(x, 10) - 1 : Number.parseInt(x, 10) + 1;
+  });
+}
+
 export default {
   data: function() {
     return {
@@ -66,10 +87,10 @@ export default {
       savebtn: true,
       updatebtn: false,
       input: {
-        _id: shortid.generate(),
+        _id: '',
         firstname: '',
         lastname: '',
-        dob: new Date().toLocaleDateString('en', 'short'),
+        dob: formatDate(new Date()),
         age: '0'
       }
     };
@@ -82,7 +103,7 @@ export default {
       let currentAge = 0;
       let monthRange = 0;
       let today = new Date();
-      const dob = new Date(this.input.dob);
+      const dob = new Date(Date.UTC(...dateFromString(this.input.dob)));
       const d = today.getDate();
       const m = today.getMonth();
       const y = today.getFullYear();
@@ -90,9 +111,11 @@ export default {
       const bdm = dob.getMonth();
       const bdy = dob.getFullYear();
       currentAge = y - bdy;
-      monthRange = (currentAge + 1) * 12 + bdm <= m ? m - bdm : 11 - bdm + m;
       if (currentAge > 0 && (bdm > m || (bdm === m && bdd > d))) {
         currentAge = currentAge - 1;
+        monthRange = bdm < m ? m - bdm : 11 - bdm + m;
+      } else {
+        monthRange = m - bdm;
       }
       this.input.age = ageUnits`${currentAge}${monthRange}`;
     },
@@ -114,12 +137,14 @@ export default {
     },
     clear: function() {
       this.input = {
-        _id: shortid.generate(),
+        _id: '',
         firstname: '',
         lastname: '',
-        dob: new Date().toLocaleDateString('en', 'short'),
+        dob: formatDate(new Date()),
         age: '0'
       };
+      this.savebtn = true;
+      this.updatebtn = false;
     },
     edit: function(item) {
       const { _id, firstname, lastname, dob, age } = item;
@@ -128,13 +153,15 @@ export default {
       this.input._id = _id;
       this.input.firstname = firstname;
       this.input.lastname = lastname;
-      this.input.dob = dob;
+      this.input.dob = formatDate(new Date(Date.UTC(...dateFromString(dob))));
       this.input.age = age;
     },
     update: function() {
       const { _id, firstname, lastname, dob, age } = this.input;
       let i = this.items.findIndex(x => x._id === _id);
       this.items[i] = this.input;
+      this.savebtn = true;
+      this.updatebtn = false;
       db.get(_id)
         .then(function(doc) {
           return db.put({
@@ -149,6 +176,7 @@ export default {
         .catch(function(error) {
           console.log(error);
         });
+      this.clear();
     },
     remove: function(item) {
       const { _id } = item;
@@ -159,7 +187,8 @@ export default {
       });
     },
     save: function() {
-      const { _id, firstname, lastname, dob, age } = this.input;
+      let { _id, firstname, lastname, dob, age } = this.input;
+      _id = shortid.generate();
       db.put({
         _id,
         firstname,
