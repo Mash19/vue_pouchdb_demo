@@ -32,3 +32,6 @@ npm run test:unit
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+#### Bug in mdc-adapter textfield
+See [Date type text field](https://github.com/stasson/vue-mdc-adapter/issues/544)
